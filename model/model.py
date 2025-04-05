@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -68,6 +69,14 @@ data_df = data_df.dropna() # Drop rows with missing values
 data_df[categorical_cols] = data_df[categorical_cols].apply(lambda x: pd.factorize(x)[0])
 print(data_df.head())
 
+# Factorize each categorical column and print the mappings
+for col in categorical_cols:
+    unique_classes, encoded_classes = pd.factorize(data_df[col])
+    class_mapping = dict(zip(encoded_classes, unique_classes))
+    print(f"Class Mapping for {col}:")
+    print(class_mapping)
+    print()
+
 # Split the data into features and target variable
 X = data_df.drop(columns=['Drug\nResponse'])
 y = data_df['Drug\nResponse']
@@ -79,12 +88,24 @@ y_values = y.values
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_values, y_values, test_size=0.2, random_state=42)
 
+# Use SMOTE to handle class imbalance with the training data
+smote = SMOTE(sampling_strategy='auto', k_neighbors=4, random_state=42)
+X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+
+print(f"Original dataset shape: {X_train.shape}, {y_train.shape}")
+print(f"Resampled dataset shape: {X_train_smote.shape}, {y_train_smote.shape}")
+
+# Standardize the data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train_smote) # Fit and transform the training data
+X_test = scaler.transform(X_test) # Transform the test data
+
 # Turn the X features into float tensors
-X_train = torch.FloatTensor(X_train)
+X_train_smote = torch.FloatTensor(X_train_smote)
 X_test = torch.FloatTensor(X_test)
 
 # Turn the y labels into long tensors
-y_train = torch.LongTensor(y_train)
+y_train_smote = torch.LongTensor(y_train_smote)
 y_test = torch.LongTensor(y_test)
 
 # Criterion and optimizer
@@ -98,8 +119,8 @@ losses = [] # List to store the loss values
 
 for i in range(epochs):
 
-    y_pred = model(X_train) # Forward pass the training data through the model
-    loss = criterion(y_pred, y_train) # Calculate the loss
+    y_pred = model(X_train_smote) # Forward pass the training data through the model
+    loss = criterion(y_pred, y_train_smote) # Calculate the loss
 
     # Track losses and epochs
     losses.append(loss.item())
@@ -131,4 +152,17 @@ with torch.no_grad():
         y_val = model.forward(data)
 
         # Will tell us which class the model predicts
-        print(f'{i + 1}. Predicted: {y_val.argmax()}, Actual: {y_test[i]}')
+        print(f'{i + 1}. Predicted: {str(y_val)}, Actual: {y_test[i]}')
+
+        # Measure the accuracy
+        if torch.argmax(y_val) == y_test[i]:
+            correct += 1
+
+    accuracy = correct / len(X_test)
+    print(f'Accuracy: {accuracy * 100:.2f}%')
+
+# Evaluate the model with some test data
+test_data = torch.FloatTensor([[0, 1, 0, 1, 1, 1, 2]]) # Replace with your test data
+
+with torch.no_grad():
+    print(model(test_data))
