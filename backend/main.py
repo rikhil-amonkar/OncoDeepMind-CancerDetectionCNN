@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from model.model import DrugResponseModel, x_scaler, y_scaler, X
@@ -8,6 +8,11 @@ import numpy as np
 
 # Initialize FastAPI app
 app = FastAPI()
+
+# Enable CORS for frontend to call the backend
+origins = [
+    "http://localhost:3000"  # React frontend
+]
 
 # Load the model
 input_size = X.shape[1]
@@ -26,7 +31,7 @@ app.add_middleware(
 
 # Define Pydantic input class (same fields as the fake_data)
 class DrugFormInput(BaseModel):
-    COSMIC_ID: int
+    COSMIC_ID: str
     CELL_LINE_NAME: str
     TCGA_DESC: str
     Cancer_Type: str
@@ -64,6 +69,7 @@ async def predict_drug_response(input_data: DrugFormInput):
 
     #****************** PREPROCESSING THE INPUT DATA #******************
     categorical_cols = [
+                        'COSMIC_ID',
                         'CELL_LINE_NAME',
                         'TCGA_DESC',
                         'CNA',
