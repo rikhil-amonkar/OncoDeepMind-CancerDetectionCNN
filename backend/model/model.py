@@ -226,4 +226,4 @@ print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
 #******************* SAVE THE MODEL *******************
 
 # Save the model
-torch.save(model.state_dict(), 'DrugResponseModel.pth')
+# torch.save(model.state_dict(), 'DrugResponseModel.pth')

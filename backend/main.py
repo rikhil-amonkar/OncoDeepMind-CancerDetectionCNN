@@ -96,3 +96,8 @@ async def predict_drug_response(input_data: DrugFormInput):
         'Predicted AUC': auc,
         'Percent Effectiveness': percent_effectiveness
     }
+
+# Route to check if the server is running
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the API!"}
