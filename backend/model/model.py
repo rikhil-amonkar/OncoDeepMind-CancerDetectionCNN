@@ -22,26 +22,40 @@ class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden la
     # The hidden layer 3 has 32 neurons
     # The output layer has 1 neuron (scalar AUC value between 0 and 1)
 
-    def __init__(self, input_features, hl1 = 128, hl2 = 64, hl3 = 32, output_feature = 1): # Funnel structure
+    def __init__(self, input_features, hl1 = 256, hl2 = 128, hl3 = 64, output_feature = 1): # Funnel structure
 
         # 128 neurons derived from features
         # Funnels down to 64 nuerons, then 32 neurons
 
         super().__init__() # Inherit from nn.Module
+
         self.fc1 = nn.Linear(input_features, hl1) # From input layer to hidden layer 1
+        self.bn1 = nn.BatchNorm1d(hl1) # Batch normalization layer for hidden layer 1
+        self.dropout1 = nn.Dropout(0.3) # Dropout layer for hidden layer 1
+
         self.fc2 = nn.Linear(hl1, hl2) # From hidden layer 1 to hidden layer 2
+        self.bn2 = nn.BatchNorm1d(hl2) # Batch normalization layer for hidden layer 2
+        self.dropout2 = nn.Dropout(0.3) # Dropout layer for hidden layer 2
+
         self.fc3 = nn.Linear(hl2, hl3) # From hidden layer 2 to hidden layer 3
+        self.bn3 = nn.BatchNorm1d(hl3) # Batch normalization layer for hidden layer 3
+
         self.output = nn.Linear(hl3, output_feature) # From hidden layer 3 to output layer
+        self.activation = nn.LeakyReLU(0.1) # Leaky ReLU activation function for output layer, better for bio-med data
 
     # Helps foward pass the data through the network
     def forward(self, x):
 
         # Rectified Linear Unit (ReLU) activation function to introduce non-linearity
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = self.output(x)
-        return x
+        x = self.activation(self.bn1(self.fc1(x))) 
+        x = self.dropout1(x) # Dropout layer to prevent overfitting
+        
+        x = self.activation(self.bn2(self.fc2(x))) 
+        x = self.dropout2(x) # Dropout layer to prevent overfitting
+
+        x = self.activation(self.bn3(self.fc3(x)))
+
+        return self.output(x) # Output layer
 
 # Pick a manual seed for randomization
 torch.manual_seed(42)
@@ -50,14 +64,14 @@ torch.manual_seed(42)
 
 # Define the needed columns
 desired_cols = [
-                    'COSMIC_ID', 
+                    # 'COSMIC_ID', 
                     'CELL_LINE_NAME', 
                     'TCGA_DESC', 
                     'CNA', 
                     'Gene Expression', 
                     'Methylation', 
                     'Microsatellite instability Status (MSI)', 
-                    'Growth Properties',
+                    # 'Growth Properties',
                     'Screen Medium',
                     'Cancer Type (matching TCGA label)',
                     'TARGET',
@@ -66,14 +80,33 @@ desired_cols = [
                 ]    
 
 # Load the data
-data = pd.read_csv('data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
+data = pd.read_csv('backend/data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
 
 # Preprocess the data
 data_df = pd.DataFrame(data)
 data_df = data_df.dropna() # Drop rows with missing values
 
+# Feature engineering for similar features to help the model see patterns
+data_df['MSI_CNA_Interaction'] = data_df['Microsatellite instability Status (MSI)'].astype(str) + '_' + data_df['CNA'].astype(str) # Create a new feature that combines MSI status and CNA status
+data_df['TARGET_Expression'] = data_df['Gene Expression'].astype(str) + '_' + data_df['TARGET'].astype(str) # Create a new feature that combines Gene Expression and TARGET status
+data_df['TARGET_Methylation_PATH'] = data_df['Methylation'].astype(str) + '_' + data_df['TARGET_PATHWAY'].astype(str) # Create a new feature that combines Methylation and TARGET_PATHWAY status
+data_df['CNA_TARGET'] = data_df['CNA'].astype(str) + '_' + data_df['TARGET'].astype(str) # Create a new feature that combines CNA and TARGET status
+data_df['CLN_Medium'] = data_df['CELL_LINE_NAME'].astype(str) + '_' + data_df['Screen Medium'].astype(str) # Create a new feature that combines cell line name and screen medium status
+data_df['Type_Expression'] = data_df['Cancer Type (matching TCGA label)'].astype(str) + '_' + data_df['Gene Expression'].astype(str) # Create a new feature that combines Cancer Type and Gene Expression status
+data_df['MSI_Type'] = data_df['Microsatellite instability Status (MSI)'].astype(str) + '_' + data_df['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
+
 # Convert categorical variables to numerical
-categorical_cols = ['CELL_LINE_NAME', 'TCGA_DESC', 'CNA', 'Gene Expression', 'Methylation', 'Microsatellite instability Status (MSI)', 'Growth Properties', 'Screen Medium', 'Cancer Type (matching TCGA label)', 'TARGET', 'TARGET_PATHWAY']
+categorical_cols = ['CELL_LINE_NAME', 'TCGA_DESC', 'CNA', 'Gene Expression', 'Methylation', 'Microsatellite instability Status (MSI)', 'Screen Medium', 'Cancer Type (matching TCGA label)', 'TARGET', 'TARGET_PATHWAY',
+                    
+                    # Adding the new feature to the list of categorical columns
+                    'MSI_CNA_Interaction',
+                    'TARGET_Expression', 
+                    'TARGET_Methylation_PATH',
+                    'CNA_TARGET',
+                    'CLN_Medium',
+                    'Type_Expression',
+                    'MSI_Type'
+                ]
 data_df = pd.get_dummies(data_df, columns=categorical_cols)
 
 # Split the data into features and target variable
@@ -81,7 +114,7 @@ X = data_df.drop(columns=['AUC'])
 y = data_df['AUC'].values.reshape(-1, 1) # Reshape y to be a 2D array
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
 # Standardize the data
 x_scaler = StandardScaler()
@@ -104,8 +137,8 @@ input_size = X_train.shape[1] # Number of features
 model = DrugResponseModel(input_features=input_size)
 
 # Criterion and optimizer
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.0005, weight_decay=1e-4) # Adam optimizer with learning rate of 0.0001
 criterion = nn.MSELoss() # Loss function for regression
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001) # Adam optimizer with learning rate of 0.001
 
 #******************* TRAINING THE MODEL *******************
 
@@ -122,7 +155,7 @@ for i in range(epochs):
 
     # Track losses and epochs
     losses.append(loss.item())
-    if i % 40 == 0:
+    if i % 20 == 0:
         print(f'Epoch {i}, Loss: {loss.item():.5f}')
 
     # Backpropagation to fine tune the any weights with error
@@ -141,9 +174,16 @@ plt.show()
 
 # Learning Rate: 0.0001
 # Epochs: 400
+# Test Size: 0.2
+# Random State: 0
 
-# Mean Squared Error: 0.05248 (0 - 1 scale) - Preffered 0
-# R^2 Score: 0.6451 (0 - 1 scale) - Preffered 1
+# HL1 = 128
+# HL2 = 64
+# HL3 = 32
+# Output Features = 1
+
+# Mean Squared Error: 0.05194 (0 - 1 scale) - Preffered 0
+# R^2 Score: 0.6556 (0 - 1 scale) - Preffered 1
 
 #******************* TESTING THE MODEL *******************
 
@@ -155,12 +195,12 @@ with torch.no_grad():
 y_test_pred = y_scaler.inverse_transform(y_test_pred_scaled.numpy())
 y_test_original = y_scaler.inverse_transform(y_test_tensor.numpy())
 
+# Clip the predictions to ensure they are within the [0, 1] range
+y_test_pred = np.clip(y_test_pred, 0, 1) # If value > 1, set to 1, if value < 0, set to 0
+
 # Calculate the R^2 score and mean squared error
 mse = mean_absolute_error(y_test_original, y_test_pred)
 r2 = r2_score(y_test_original, y_test_pred)
-
-# Clip the predictions to ensure they are within the [0, 1] range
-y_test_pred = np.clip(y_test_pred, 0, 1) # If value > 1, set to 1, if value < 0, set to 0
 
 print(f'\nMean Squared Error: {mse:.5f}')
 print(f'R^2 Score: {r2:.4f}')
@@ -169,19 +209,28 @@ print(f'R^2 Score: {r2:.4f}')
 
 # Fake data - an example with a similar structure to the original input
 fake_data = pd.DataFrame({
-    'COSMIC_ID': [683667], 
+    # 'COSMIC_ID': [683667], 
     'CELL_LINE_NAME': ['PFSK-1'], 
     'TCGA_DESC': ['MB'], 
     'Cancer Type (matching TCGA label)': ['MB'],
     'Microsatellite instability Status (MSI)': ['MSS/MSI-L'],
     'Screen Medium': ['R'],
-    'Growth Properties': ['Adherent'],
+    # 'Growth Properties': ['Adherent'],
     'CNA': ['Y'],
     'Gene Expression': ['Y'],
     'Methylation': ['Y'],
     'TARGET': ['TOP1'],
     'TARGET_PATHWAY': ['DNA replication']
 })
+
+# Feature engineer the fake data with new columns made before
+fake_data['MSI_CNA_Interaction'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['CNA'].astype(str) # Create a new feature that combines MSI status and CNA status
+fake_data['TARGET_Expression'] = fake_data['Gene Expression'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines Gene Expression and TARGET status
+fake_data['TARGET_Methylation_PATH'] = fake_data['Methylation'].astype(str) + '_' + fake_data['TARGET_PATHWAY'].astype(str) # Create a new feature that combines Methylation and TARGET_PATHWAY status
+fake_data['CNA_TARGET'] = fake_data['CNA'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines CNA and TARGET status
+fake_data['CLN_Medium'] = fake_data['CELL_LINE_NAME'].astype(str) + '_' + fake_data['Screen Medium'].astype(str) # Create a new feature that combines cell line name and screen medium status
+fake_data['Type_Expression'] = fake_data['Cancer Type (matching TCGA label)'].astype(str) + '_' + fake_data['Gene Expression'].astype(str) # Create a new feature that combines Cancer Type and Gene Expression status
+fake_data['MSI_Type'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
 
 # Preprocess the fake data
 fake_data = pd.get_dummies(fake_data, columns=categorical_cols)
