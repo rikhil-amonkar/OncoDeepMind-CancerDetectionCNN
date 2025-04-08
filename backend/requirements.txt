@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-pydantic
-torch
-numpy
-pandas
-scikit-learn
-python-multipart  # Needed if you handle file uploads or forms

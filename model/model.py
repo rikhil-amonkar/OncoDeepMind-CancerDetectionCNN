@@ -22,7 +22,7 @@ class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden la
     # The hidden layer 3 has 32 neurons
     # The output layer has 1 neuron (scalar AUC value between 0 and 1)
 
-    def __init__(self, input_features, hl1 = 256, hl2 = 128, hl3 = 64, output_feature = 1): # Funnel structure
+    def __init__(self, input_features, hl1 = 256, hl2 = 128, hl3 = 64, hl4 = 32, hl5 = 16, output_feature = 1): # Funnel structure
 
         # 128 neurons derived from features
         # Funnels down to 64 nuerons, then 32 neurons
@@ -39,8 +39,16 @@ class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden la
 
         self.fc3 = nn.Linear(hl2, hl3) # From hidden layer 2 to hidden layer 3
         self.bn3 = nn.BatchNorm1d(hl3) # Batch normalization layer for hidden layer 3
+        self.dropout3 = nn.Dropout(0.3)
 
-        self.output = nn.Linear(hl3, output_feature) # From hidden layer 3 to output layer
+        self.fc4 = nn.Linear(hl3, hl4) # From hidden layer 3 to hidden layer 4
+        self.bn4 = nn.BatchNorm1d(hl4) # Batch normalization layer for hidden layer 4
+        self.dropout4 = nn.Dropout(0.3)
+
+        self.fc5 = nn.Linear(hl4, hl5) # From hidden layer 4 to hidden layer 5
+        self.bn5 = nn.BatchNorm1d(hl5) # Batch normalization layer for hidden layer 5
+
+        self.output = nn.Linear(hl5, output_feature) # From hidden layer 5 to output layer
         self.activation = nn.LeakyReLU(0.1) # Leaky ReLU activation function for output layer, better for bio-med data
 
     # Helps foward pass the data through the network
@@ -54,6 +62,12 @@ class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden la
         x = self.dropout2(x) # Dropout layer to prevent overfitting
 
         x = self.activation(self.bn3(self.fc3(x)))
+        x = self.dropout3(x) # Dropout layer to prevent overfitting
+
+        x = self.activation(self.bn4(self.fc4(x)))
+        x = self.dropout4(x) # Dropout layer to prevent overfitting
+
+        x = self.activation(self.bn5(self.fc5(x)))
 
         return self.output(x) # Output layer
 
@@ -184,6 +198,23 @@ plt.show()
 
 # Mean Squared Error: 0.05194 (0 - 1 scale) - Preffered 0
 # R^2 Score: 0.6556 (0 - 1 scale) - Preffered 1
+
+#******************* TEST (5-LAYER) MODEL METRICS *******************
+
+# Learning Rate: 0.0005
+# Epochs: 400
+# Test Size: 0.2
+# Random State: 0
+
+# HL1 = 256
+# HL2 = 128
+# HL3 = 64
+# HL4 = 32
+# HL5 = 16
+# Output Features = 1
+
+# Mean Squared Error: 0.04933 (0 - 1 scale) - Preffered 0
+# R^2 Score: 0.6411 (0 - 1 scale) - Preffered 1
 
 #******************* TESTING THE MODEL *******************
 
