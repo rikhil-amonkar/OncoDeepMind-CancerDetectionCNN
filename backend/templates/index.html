@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Response | Cancer Deep Learning Predictor</title>
+</head>
+<body>
+    
+    <h1 class="header">Welcome to the Flask App</h1>
+    <p class="sub-header">This is a simple Flask application.</p>
+
+    <form method="post" action="/predict">
+
+        <label>CELL_LINE_NAME:</label><input name="cell_line_name" required><br>
+        <label>TCGA_DESC:</label><input name="tcga" required><br>
+        <label>Cancer Type (matching TCGA label):</label><input name="cancer_type" required><br>
+        <label>Microsatellite instability Status (MSI):</label><input name="msi" required><br>
+        <label>Screen Medium:</label><input name="screen_medium" required><br>
+        <label>CNA:</label><input name="cna" required><br>
+        <label>Gene Expression:</label><input name="gene_expression" required><br>
+        <label>Methylation:</label><input name="methylation" required><br>
+        <label>TARGET:</label><input name="target" required><br>
+        <label>TARGET_PATHWAY:</label><input name="target_pathway" required><br>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+        <h2>Prediction Result: {{ prediction }}</h2>
+    {% endif %}
+
+</body>
+</html>

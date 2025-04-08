@@ -1,0 +1,85 @@
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import torch
+import pandas as pd
+from model import DrugResponseModel, x_scaler, y_scaler, X, X_train, categorical_cols
+import numpy as np
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Initialize Jinja2 templates
+templates = Jinja2Templates(directory="templates")
+
+# Load the model
+input_size = X_train.shape[1] # Adjust input_size to match the number of features in your dataset
+model = DrugResponseModel(input_features=input_size)
+model.load_state_dict(torch.load('DrugResponseModel.pth'))
+model.eval() # Set the model to evaluation mode
+
+# Define a root endpoint and function to handle requests
+@app.get("/", response_class=HTMLResponse) # Root endpoint
+async def name(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+# Define route for prediciton and form submission
+@app.post("/predict", response_class=HTMLResponse)
+async def predict(request: Request,
+                  cell_line_name: str = Form (...),
+                  tcga: str = Form (...),
+                  cna: str = Form (...),
+                  gene_expression: str = Form (...),
+                  methylation: str = Form (...),
+                  msi: str = Form (...),
+                  screen_medium: str = Form (...),
+                  cancer_type: str = Form (...),
+                  target: str = Form (...),
+                  target_pathway: str = Form (...)):
+        
+        user_data = pd.DataFrame({
+            # 'COSMIC_ID': [683667], 
+            'CELL_LINE_NAME': [cell_line_name], 
+            'TCGA_DESC': [tcga], 
+            'Cancer Type (matching TCGA label)': [cancer_type],
+            'Microsatellite instability Status (MSI)': [msi],
+            'Screen Medium': [screen_medium],
+            # 'Growth Properties': ['Adherent'],
+            'CNA': [cna],
+            'Gene Expression': [gene_expression],
+            'Methylation': [methylation],
+            'TARGET': [target],
+            'TARGET_PATHWAY': [target_pathway]
+        })
+        
+        # Feature engineer the fake data with new columns made before
+        user_data['MSI_CNA_Interaction'] = user_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + user_data['CNA'].astype(str) # Create a new feature that combines MSI status and CNA status
+        user_data['TARGET_Expression'] = user_data['Gene Expression'].astype(str) + '_' + user_data['TARGET'].astype(str) # Create a new feature that combines Gene Expression and TARGET status
+        user_data['TARGET_Methylation_PATH'] = user_data['Methylation'].astype(str) + '_' + user_data['TARGET_PATHWAY'].astype(str) # Create a new feature that combines Methylation and TARGET_PATHWAY status
+        user_data['CNA_TARGET'] = user_data['CNA'].astype(str) + '_' + user_data['TARGET'].astype(str) # Create a new feature that combines CNA and TARGET status
+        user_data['CLN_Medium'] = user_data['CELL_LINE_NAME'].astype(str) + '_' + user_data['Screen Medium'].astype(str) # Create a new feature that combines cell line name and screen medium status
+        user_data['Type_Expression'] = user_data['Cancer Type (matching TCGA label)'].astype(str) + '_' + user_data['Gene Expression'].astype(str) # Create a new feature that combines Cancer Type and Gene Expression status
+        user_data['MSI_Type'] = user_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + user_data['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
+
+        # Preprocess the fake data
+        user_data = pd.get_dummies(user_data, columns=categorical_cols)
+        user_data_encoded = user_data.reindex(columns=X.columns, fill_value=0) # Reindex to match the original data
+        user_data_scaled = x_scaler.transform(user_data_encoded) # Scale the fake data
+        user_data_tensor = torch.FloatTensor(user_data_scaled)
+
+        # Make predictions on the fake data
+        with torch.no_grad():
+            fake_data_pred_scaled = model(user_data_tensor) # Forward pass the fake data through the model
+            fake_data_pred = y_scaler.inverse_transform(fake_data_pred_scaled.numpy()) # Inverse transform the predictions
+            print(f'Predicted AUC for fake data: {fake_data_pred[0][0]:.5f}')
+
+        # Calculate percent effectiveness from AUC
+        percent_effectiveness = (fake_data_pred[0][0]) * 100
+        print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
+
+        # Return the prediction result to the HTML template
+        return templates.TemplateResponse("index.html", {"request": request, "prediction": f"{percent_effectiveness:.2f}%"})
+        
+    
+
+

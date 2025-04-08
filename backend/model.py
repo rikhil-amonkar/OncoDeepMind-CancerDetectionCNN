@@ -14,15 +14,17 @@ import matplotlib.pyplot as plt
 #******************* NUERAL NETWORK MODEL *******************
 
 # Define the neural network model
-class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden layer 2 -> Hidden layer 3 -> Output layer
+class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden layer 2 -> Hidden layer 3 -> Hidden layer 4 -> Hidden layer 5 -> Output layer
 
-    # The input layer has 12 features
+    # The input layer has 10 features
     # The hidden layer 1 has 128 neurons
     # The hidden layer 2 has 64 neurons
     # The hidden layer 3 has 32 neurons
+    # The hidden layer 4 has 16 neurons
+    # The hidden layer 5 has 8 neurons
     # The output layer has 1 neuron (scalar AUC value between 0 and 1)
 
-    def __init__(self, input_features, hl1 = 256, hl2 = 128, hl3 = 64, hl4 = 32, hl5 = 16, output_feature = 1): # Funnel structure
+    def __init__(self, input_features, hl1 = 128, hl2 = 64, hl3 = 32, hl4 = 16, hl5 = 8, output_feature = 1): # Funnel structure
 
         # 128 neurons derived from features
         # Funnels down to 64 nuerons, then 32 neurons
@@ -94,7 +96,7 @@ desired_cols = [
                 ]    
 
 # Load the data
-data = pd.read_csv('backend/data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
+data = pd.read_csv('data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
 
 # Preprocess the data
 data_df = pd.DataFrame(data)
@@ -186,7 +188,8 @@ plt.show()
 
 #******************* BEST MODEL METRICS *******************
 
-# Learning Rate: 0.0001
+# Learning Rate: 0.0005
+# Weight Decay: 0.0001 (1e-4)
 # Epochs: 400
 # Test Size: 0.2
 # Random State: 0
@@ -194,27 +197,12 @@ plt.show()
 # HL1 = 128
 # HL2 = 64
 # HL3 = 32
+# HL4 = 16
+# HL5 = 8
 # Output Features = 1
 
-# Mean Squared Error: 0.05194 (0 - 1 scale) - Preffered 0
-# R^2 Score: 0.6556 (0 - 1 scale) - Preffered 1
-
-#******************* TEST (5-LAYER) MODEL METRICS *******************
-
-# Learning Rate: 0.0005
-# Epochs: 400
-# Test Size: 0.2
-# Random State: 0
-
-# HL1 = 256
-# HL2 = 128
-# HL3 = 64
-# HL4 = 32
-# HL5 = 16
-# Output Features = 1
-
-# Mean Squared Error: 0.04933 (0 - 1 scale) - Preffered 0
-# R^2 Score: 0.6411 (0 - 1 scale) - Preffered 1
+# Mean Squared Error: 0.04970 (0 - 1 scale) - Preffered 0
+# R^2 Score: 0.6610 (0 - 1 scale) - Preffered 1
 
 #******************* TESTING THE MODEL *******************
 
