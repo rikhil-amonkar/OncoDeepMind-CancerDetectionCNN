@@ -2,9 +2,13 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import torch
+import torch.nn as nn
 import pandas as pd
-from model import DrugResponseModel, x_scaler, y_scaler, X, X_train, categorical_cols
+import joblib
+from drug_nueral_network import DrugResponseModel
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -12,11 +16,22 @@ app = FastAPI()
 # Initialize Jinja2 templates
 templates = Jinja2Templates(directory="templates")
 
-# Load the model
-input_size = X_train.shape[1] # Adjust input_size to match the number of features in your dataset
-model = DrugResponseModel(input_features=input_size)
-model.load_state_dict(torch.load('DrugResponseModel.pth'))
-model.eval() # Set the model to evaluation mode
+# Load the model and other features
+def load_model():
+     model = DrugResponseModel(input_features=len(joblib.load("columns.pkl"))) # Initialize the model
+     model.load_state_dict(torch.load("DrugResponseModel.pth")) # Load the model weights
+     model.eval() # Set the model to evaluation mode
+
+    # Return the model and other features
+     return {
+            'model': model,
+            'x_scaler': joblib.load("x_scaler.pkl"), # Load the scaler for input features
+            'y_scaler': joblib.load("y_scaler.pkl"), # Load the scaler for output features
+            'columns': joblib.load("columns.pkl"), # Load the columns for input features
+            'categorical_cols': joblib.load("categorical_cols.pkl"), # Load the categorical columns
+     }
+
+program_features = load_model() # Load the model and other features
 
 # Define a root endpoint and function to handle requests
 @app.get("/", response_class=HTMLResponse) # Root endpoint
@@ -62,19 +77,19 @@ async def predict(request: Request,
         user_data['MSI_Type'] = user_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + user_data['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
 
         # Preprocess the fake data
-        user_data = pd.get_dummies(user_data, columns=categorical_cols)
-        user_data_encoded = user_data.reindex(columns=X.columns, fill_value=0) # Reindex to match the original data
-        user_data_scaled = x_scaler.transform(user_data_encoded) # Scale the fake data
+        user_data = pd.get_dummies(user_data, columns=program_features['categorical_cols'])
+        user_data_encoded = user_data.reindex(columns=program_features['columns'], fill_value=0)
+        user_data_scaled = program_features['x_scaler'].transform(user_data_encoded) # Scale the fake data
         user_data_tensor = torch.FloatTensor(user_data_scaled)
 
         # Make predictions on the fake data
         with torch.no_grad():
-            fake_data_pred_scaled = model(user_data_tensor) # Forward pass the fake data through the model
-            fake_data_pred = y_scaler.inverse_transform(fake_data_pred_scaled.numpy()) # Inverse transform the predictions
-            print(f'Predicted AUC for fake data: {fake_data_pred[0][0]:.5f}')
+            user_data_pred_scaled = program_features['model'](user_data_tensor) # Forward pass the fake data through the model
+            user_data_pred = program_features['y_scaler'].inverse_transform(user_data_pred_scaled.numpy()) # Inverse transform the predictions
+            print(f'Predicted AUC for fake data: {user_data_pred[0][0]:.5f}')
 
         # Calculate percent effectiveness from AUC
-        percent_effectiveness = (fake_data_pred[0][0]) * 100
+        percent_effectiveness = (user_data_pred[0][0]) * 100
         print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
 
         # Return the prediction result to the HTML template

@@ -1,80 +1,12 @@
 import pandas as pd
 import numpy as np
+import torch
+import torch.nn as nn
+import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import r2_score, mean_absolute_error
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-import matplotlib.pyplot as plt
-
-#******************* NUERAL NETWORK MODEL *******************
-
-# Define the neural network model
-class DrugResponseModel(nn.Module): # Input layer -> Hidden layer 1 -> Hidden layer 2 -> Hidden layer 3 -> Hidden layer 4 -> Hidden layer 5 -> Output layer
-
-    # The input layer has 10 features
-    # The hidden layer 1 has 128 neurons
-    # The hidden layer 2 has 64 neurons
-    # The hidden layer 3 has 32 neurons
-    # The hidden layer 4 has 16 neurons
-    # The hidden layer 5 has 8 neurons
-    # The output layer has 1 neuron (scalar AUC value between 0 and 1)
-
-    def __init__(self, input_features, hl1 = 128, hl2 = 64, hl3 = 32, hl4 = 16, hl5 = 8, output_feature = 1): # Funnel structure
-
-        # 128 neurons derived from features
-        # Funnels down to 64 nuerons, then 32 neurons
-
-        super().__init__() # Inherit from nn.Module
-
-        self.fc1 = nn.Linear(input_features, hl1) # From input layer to hidden layer 1
-        self.bn1 = nn.BatchNorm1d(hl1) # Batch normalization layer for hidden layer 1
-        self.dropout1 = nn.Dropout(0.3) # Dropout layer for hidden layer 1
-
-        self.fc2 = nn.Linear(hl1, hl2) # From hidden layer 1 to hidden layer 2
-        self.bn2 = nn.BatchNorm1d(hl2) # Batch normalization layer for hidden layer 2
-        self.dropout2 = nn.Dropout(0.3) # Dropout layer for hidden layer 2
-
-        self.fc3 = nn.Linear(hl2, hl3) # From hidden layer 2 to hidden layer 3
-        self.bn3 = nn.BatchNorm1d(hl3) # Batch normalization layer for hidden layer 3
-        self.dropout3 = nn.Dropout(0.3)
-
-        self.fc4 = nn.Linear(hl3, hl4) # From hidden layer 3 to hidden layer 4
-        self.bn4 = nn.BatchNorm1d(hl4) # Batch normalization layer for hidden layer 4
-        self.dropout4 = nn.Dropout(0.3)
-
-        self.fc5 = nn.Linear(hl4, hl5) # From hidden layer 4 to hidden layer 5
-        self.bn5 = nn.BatchNorm1d(hl5) # Batch normalization layer for hidden layer 5
-
-        self.output = nn.Linear(hl5, output_feature) # From hidden layer 5 to output layer
-        self.activation = nn.LeakyReLU(0.1) # Leaky ReLU activation function for output layer, better for bio-med data
-
-    # Helps foward pass the data through the network
-    def forward(self, x):
-
-        # Rectified Linear Unit (ReLU) activation function to introduce non-linearity
-        x = self.activation(self.bn1(self.fc1(x))) 
-        x = self.dropout1(x) # Dropout layer to prevent overfitting
-        
-        x = self.activation(self.bn2(self.fc2(x))) 
-        x = self.dropout2(x) # Dropout layer to prevent overfitting
-
-        x = self.activation(self.bn3(self.fc3(x)))
-        x = self.dropout3(x) # Dropout layer to prevent overfitting
-
-        x = self.activation(self.bn4(self.fc4(x)))
-        x = self.dropout4(x) # Dropout layer to prevent overfitting
-
-        x = self.activation(self.bn5(self.fc5(x)))
-
-        return self.output(x) # Output layer
-
-# Pick a manual seed for randomization
-torch.manual_seed(42)
+from drug_nueral_network import DrugResponseModel # Import the model class
 
 #******************* PREPROCESSING THE DATA *******************
 
@@ -179,12 +111,16 @@ for i in range(epochs):
     loss.backward() # Backpropagation
     optimizer.step() # Update the weights
 
-# Plot the loss values
-plt.plot(range(epochs), losses)
-plt.xlabel('Epochs')
-plt.ylabel('Loss (MSE)')
-plt.title('Training Loss vs Epochs')
-plt.show()
+# Save model and artifacts
+def save_model():
+    torch.save(model.state_dict(), 'DrugResponseModel.pth')
+    joblib.dump(x_scaler, 'x_scaler.pkl')
+    joblib.dump(y_scaler, 'y_scaler.pkl')
+    joblib.dump(X.columns, 'columns.pkl')
+    joblib.dump(categorical_cols, 'categorical_cols.pkl')
+    print("Model and artifacts saved successfully")
+
+save_model()
 
 #******************* BEST MODEL METRICS *******************
 
@@ -206,67 +142,67 @@ plt.show()
 
 #******************* TESTING THE MODEL *******************
 
-model.eval() # Set the model to evaluation mode
-with torch.no_grad():
-    y_test_pred_scaled = model(X_test_tensor) # Forward pass the test data through the model
+# model.eval() # Set the model to evaluation mode
+# with torch.no_grad():
+#     y_test_pred_scaled = model(X_test_tensor) # Forward pass the test data through the model
 
-# Inverse transform the predicted values and tragets to original scale
-y_test_pred = y_scaler.inverse_transform(y_test_pred_scaled.numpy())
-y_test_original = y_scaler.inverse_transform(y_test_tensor.numpy())
+# # Inverse transform the predicted values and tragets to original scale
+# y_test_pred = y_scaler.inverse_transform(y_test_pred_scaled.numpy())
+# y_test_original = y_scaler.inverse_transform(y_test_tensor.numpy())
 
-# Clip the predictions to ensure they are within the [0, 1] range
-y_test_pred = np.clip(y_test_pred, 0, 1) # If value > 1, set to 1, if value < 0, set to 0
+# # Clip the predictions to ensure they are within the [0, 1] range
+# y_test_pred = np.clip(y_test_pred, 0, 1) # If value > 1, set to 1, if value < 0, set to 0
 
-# Calculate the R^2 score and mean squared error
-mse = mean_absolute_error(y_test_original, y_test_pred)
-r2 = r2_score(y_test_original, y_test_pred)
+# # Calculate the R^2 score and mean squared error
+# mse = mean_absolute_error(y_test_original, y_test_pred)
+# r2 = r2_score(y_test_original, y_test_pred)
 
-print(f'\nMean Squared Error: {mse:.5f}')
-print(f'R^2 Score: {r2:.4f}')
+# print(f'\nMean Squared Error: {mse:.5f}')
+# print(f'R^2 Score: {r2:.4f}')
 
-#******************** INTERPRETING AUC VALUES *******************
+# #******************** INTERPRETING AUC VALUES *******************
 
-# Fake data - an example with a similar structure to the original input
-fake_data = pd.DataFrame({
-    # 'COSMIC_ID': [683667], 
-    'CELL_LINE_NAME': ['PFSK-1'], 
-    'TCGA_DESC': ['MB'], 
-    'Cancer Type (matching TCGA label)': ['MB'],
-    'Microsatellite instability Status (MSI)': ['MSS/MSI-L'],
-    'Screen Medium': ['R'],
-    # 'Growth Properties': ['Adherent'],
-    'CNA': ['Y'],
-    'Gene Expression': ['Y'],
-    'Methylation': ['Y'],
-    'TARGET': ['TOP1'],
-    'TARGET_PATHWAY': ['DNA replication']
-})
+# # Fake data - an example with a similar structure to the original input
+# fake_data = pd.DataFrame({
+#     # 'COSMIC_ID': [683667], 
+#     'CELL_LINE_NAME': ['PFSK-1'], 
+#     'TCGA_DESC': ['MB'], 
+#     'Cancer Type (matching TCGA label)': ['MB'],
+#     'Microsatellite instability Status (MSI)': ['MSS/MSI-L'],
+#     'Screen Medium': ['R'],
+#     # 'Growth Properties': ['Adherent'],
+#     'CNA': ['Y'],
+#     'Gene Expression': ['Y'],
+#     'Methylation': ['Y'],
+#     'TARGET': ['TOP1'],
+#     'TARGET_PATHWAY': ['DNA replication']
+# })
 
-# Feature engineer the fake data with new columns made before
-fake_data['MSI_CNA_Interaction'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['CNA'].astype(str) # Create a new feature that combines MSI status and CNA status
-fake_data['TARGET_Expression'] = fake_data['Gene Expression'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines Gene Expression and TARGET status
-fake_data['TARGET_Methylation_PATH'] = fake_data['Methylation'].astype(str) + '_' + fake_data['TARGET_PATHWAY'].astype(str) # Create a new feature that combines Methylation and TARGET_PATHWAY status
-fake_data['CNA_TARGET'] = fake_data['CNA'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines CNA and TARGET status
-fake_data['CLN_Medium'] = fake_data['CELL_LINE_NAME'].astype(str) + '_' + fake_data['Screen Medium'].astype(str) # Create a new feature that combines cell line name and screen medium status
-fake_data['Type_Expression'] = fake_data['Cancer Type (matching TCGA label)'].astype(str) + '_' + fake_data['Gene Expression'].astype(str) # Create a new feature that combines Cancer Type and Gene Expression status
-fake_data['MSI_Type'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
+# # Feature engineer the fake data with new columns made before
+# fake_data['MSI_CNA_Interaction'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['CNA'].astype(str) # Create a new feature that combines MSI status and CNA status
+# fake_data['TARGET_Expression'] = fake_data['Gene Expression'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines Gene Expression and TARGET status
+# fake_data['TARGET_Methylation_PATH'] = fake_data['Methylation'].astype(str) + '_' + fake_data['TARGET_PATHWAY'].astype(str) # Create a new feature that combines Methylation and TARGET_PATHWAY status
+# fake_data['CNA_TARGET'] = fake_data['CNA'].astype(str) + '_' + fake_data['TARGET'].astype(str) # Create a new feature that combines CNA and TARGET status
+# fake_data['CLN_Medium'] = fake_data['CELL_LINE_NAME'].astype(str) + '_' + fake_data['Screen Medium'].astype(str) # Create a new feature that combines cell line name and screen medium status
+# fake_data['Type_Expression'] = fake_data['Cancer Type (matching TCGA label)'].astype(str) + '_' + fake_data['Gene Expression'].astype(str) # Create a new feature that combines Cancer Type and Gene Expression status
+# fake_data['MSI_Type'] = fake_data['Microsatellite instability Status (MSI)'].astype(str) + '_' + fake_data['Cancer Type (matching TCGA label)'].astype(str) # Create a new feature that combines MSI status and Cancer Type
 
-# Preprocess the fake data
-fake_data = pd.get_dummies(fake_data, columns=categorical_cols)
-fake_data_encoded = fake_data.reindex(columns=X.columns, fill_value=0) # Reindex to match the original data
-fake_data_scaled = x_scaler.transform(fake_data_encoded) # Scale the fake data
-fake_data_tensor = torch.FloatTensor(fake_data_scaled)
+# # Preprocess the fake data
+# fake_data = pd.get_dummies(fake_data, columns=categorical_cols)
+# fake_data_encoded = fake_data.reindex(columns=X.columns, fill_value=0) # Reindex to match the original data
+# fake_data_scaled = x_scaler.transform(fake_data_encoded) # Scale the fake data
+# fake_data_tensor = torch.FloatTensor(fake_data_scaled)
 
-# Make predictions on the fake data
-model.eval()
-with torch.no_grad():
-    fake_data_pred_scaled = model(fake_data_tensor) # Forward pass the fake data through the model
-    fake_data_pred = y_scaler.inverse_transform(fake_data_pred_scaled.numpy()) # Inverse transform the predictions
-    print(f'Predicted AUC for fake data: {fake_data_pred[0][0]:.5f}')
+# # Make predictions on the fake data
+# model.eval()
+# with torch.no_grad():
+#     fake_data_pred_scaled = model(fake_data_tensor) # Forward pass the fake data through the model
+#     fake_data_pred = y_scaler.inverse_transform(fake_data_pred_scaled.numpy()) # Inverse transform the predictions
+#     print(f'Predicted AUC for fake data: {fake_data_pred[0][0]:.5f}')
 
-# Calculate percent effectiveness from AUC
-percent_effectiveness = (fake_data_pred[0][0]) * 100
-print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
+# # Calculate percent effectiveness from AUC
+# percent_effectiveness = (fake_data_pred[0][0]) * 100
+# print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
 
 #****************** FAKE DATA PREDICTION METRICS *******************
 
