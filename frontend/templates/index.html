@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Response | Cancer Deep Learning Predictor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    
+    <h1 class="header">OncoDeepMind</h1>
+    <p class="sub-header">A nueral network orientated drug response predictor.</p>
+
+    <div class="form-container">
+        <h2 class="form-header">Drug Response Prediction</h2>
+        <form method="post" action="/predict">
+
+            <label class="input-info">CELL_LINE_NAME:</label><input type="text" name="cell_line_name" required><br>
+            <label class="input-info">TCGA_DESC:</label><input type="text" name="tcga" required><br>
+            <label class="input-info">Cancer Type (matching TCGA label):</label><input type="text" name="cancer_type" required><br>
+            <label class="input-info">Microsatellite instability Status (MSI):</label><input type="text" name="msi" required><br>
+            <label class="input-info">Screen Medium:</label><input type="text" name="screen_medium" required><br>
+            <label class="input-info">CNA:</label><input type="text" name="cna" required><br>
+            <labe class="input-info"l>Gene Expression:</label><input type="text" name="gene_expression" required><br>
+            <label class="input-info">Methylation:</label><input type="text" name="methylation" required><br>
+            <label class="input-info">TARGET:</label><input type="text" name="target" required><br>
+            <label class="input-info">TARGET_PATHWAY:</label><input type="text" name="target_pathway" required><br>
+    
+            <button class="submit-button" type="submit">Predict</button>
+        </form>
+    
+        {% if prediction %}
+            <h2 class="prediction-percentage">Drug Response Effectiveness: {{ prediction }}</h2>
+        {% endif %}
+    </div>
+
+</body>
+</html>

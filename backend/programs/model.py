@@ -6,7 +6,7 @@ import joblib
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from drug_nueral_network import DrugResponseModel # Import the model class
+from backend.programs.drug_nueral_network import DrugResponseModel # Import the model class
 
 #******************* PREPROCESSING THE DATA *******************
 
@@ -28,7 +28,7 @@ desired_cols = [
                 ]    
 
 # Load the data
-data = pd.read_csv('data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
+data = pd.read_csv('backend/data/GDSC_DATASET.csv', usecols=desired_cols) # Only load the relevant columns
 
 # Preprocess the data
 data_df = pd.DataFrame(data)

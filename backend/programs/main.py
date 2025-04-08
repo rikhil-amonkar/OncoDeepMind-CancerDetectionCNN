@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import torch
 import torch.nn as nn
 import pandas as pd
 import joblib
-from drug_nueral_network import DrugResponseModel
+from backend.programs.drug_nueral_network import DrugResponseModel
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -13,22 +14,23 @@ from sklearn.preprocessing import StandardScaler
 # Initialize FastAPI app
 app = FastAPI()
 
-# Initialize Jinja2 templates
-templates = Jinja2Templates(directory="templates")
+# Initialize Jinja2 templates and static files
+templates = Jinja2Templates(directory="frontend") # Directory for HTML templates
+app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 
 # Load the model and other features
 def load_model():
-     model = DrugResponseModel(input_features=len(joblib.load("columns.pkl"))) # Initialize the model
-     model.load_state_dict(torch.load("DrugResponseModel.pth")) # Load the model weights
+     model = DrugResponseModel(input_features=len(joblib.load("backend/saved_models/columns.pkl"))) # Initialize the model
+     model.load_state_dict(torch.load("backend/saved_models/DrugResponseModel.pth")) # Load the model weights
      model.eval() # Set the model to evaluation mode
 
     # Return the model and other features
      return {
             'model': model,
-            'x_scaler': joblib.load("x_scaler.pkl"), # Load the scaler for input features
-            'y_scaler': joblib.load("y_scaler.pkl"), # Load the scaler for output features
-            'columns': joblib.load("columns.pkl"), # Load the columns for input features
-            'categorical_cols': joblib.load("categorical_cols.pkl"), # Load the categorical columns
+            'x_scaler': joblib.load("backend/saved_models/x_scaler.pkl"), # Load the scaler for input features
+            'y_scaler': joblib.load("backend/saved_models/y_scaler.pkl"), # Load the scaler for output features
+            'columns': joblib.load("backend/saved_models/columns.pkl"), # Load the columns for input features
+            'categorical_cols': joblib.load("backend/saved_models/categorical_cols.pkl"), # Load the categorical columns
      }
 
 program_features = load_model() # Load the model and other features
@@ -36,7 +38,7 @@ program_features = load_model() # Load the model and other features
 # Define a root endpoint and function to handle requests
 @app.get("/", response_class=HTMLResponse) # Root endpoint
 async def name(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("templates/index.html", {"request": request})
 
 # Define route for prediciton and form submission
 @app.post("/predict", response_class=HTMLResponse)
@@ -93,7 +95,7 @@ async def predict(request: Request,
         print(f'Percent effectiveness: {percent_effectiveness:.2f}%')
 
         # Return the prediction result to the HTML template
-        return templates.TemplateResponse("index.html", {"request": request, "prediction": f"{percent_effectiveness:.2f}%"})
+        return templates.TemplateResponse("templates/index.html", {"request": request, "prediction": f"{percent_effectiveness:.2f}%"})
         
     
 
