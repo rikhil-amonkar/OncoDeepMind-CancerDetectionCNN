@@ -3,36 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drug Response | Cancer Deep Learning Predictor</title>
+    <title>OncoDeepMind | Deep Learning Oncology Assistant</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    
-    <h1 class="header">OncoDeepMind</h1>
-    <p class="sub-header">A nueral network orientated drug response predictor.</p>
 
-    <div class="form-container">
-        <h2 class="form-header">Drug Response Prediction</h2>
-        <form method="post" action="/predict">
+    <header>
+        <div class="navbar">
+            <a class="tabs" href="/frontend/templates/index.html">Home</a>
+            <a class="tabs" href="#news">News</a>
+            <a class="tabs" href="#contact">Contact</a>
+            <a class="tabs" href="/frontend/templates/about.html">About</a>
+          </div>
+    </header>
 
-            <label class="input-info">CELL_LINE_NAME:</label><input type="text" name="cell_line_name" required><br>
-            <label class="input-info">TCGA_DESC:</label><input type="text" name="tcga" required><br>
-            <label class="input-info">Cancer Type (matching TCGA label):</label><input type="text" name="cancer_type" required><br>
-            <label class="input-info">Microsatellite instability Status (MSI):</label><input type="text" name="msi" required><br>
-            <label class="input-info">Screen Medium:</label><input type="text" name="screen_medium" required><br>
-            <label class="input-info">CNA:</label><input type="text" name="cna" required><br>
-            <labe class="input-info"l>Gene Expression:</label><input type="text" name="gene_expression" required><br>
-            <label class="input-info">Methylation:</label><input type="text" name="methylation" required><br>
-            <label class="input-info">TARGET:</label><input type="text" name="target" required><br>
-            <label class="input-info">TARGET_PATHWAY:</label><input type="text" name="target_pathway" required><br>
-    
-            <button class="submit-button" type="submit">Predict</button>
-        </form>
-    
-        {% if prediction %}
-            <h2 class="prediction-percentage">Drug Response Effectiveness: {{ prediction }}</h2>
-        {% endif %}
+    <div class="hero-container">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="home-page-header">Precision Oncology with <span class="text-primary">Deep Learning</span></h1>
+                    <p class="home-page-sub-text">OncoDeepMind predicts drug response effectiveness in cancer treatment using advanced AI algorithms, empowering oncologists to make data-driven decisions for personalized patient care.</p>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <div class="bottom-page">
+        <div class="header-container">
+            <h1 class="header">OncoDeepMind</h1>
+            <p class="sub-header">A nueral network orientated drug response predictor.</p>
+        </div>
+    
+        <div class="form-container">
+            <h2 class="form-header">Drug Response Form</h2>
+            <form method="post" action="/predict">
+    
+                <label class="input-info">Cell Line Name</label><input type="text" name="cell_line_name" list="cell_line_name" required><br>
+                <datalist id="cell_line_name">
+                    <option value="A375"></option>
+                    <option value="A549"></option>
+                    <option value="MCF7"></option>
+                    <option value="HCT116"></option>
+                    <option value="PC3"></option>
+                </datalist>
+                <label class="input-info">TCGA Description</label><input type="text" name="tcga" required><br>
+                <label class="input-info">Cancer Type (matches TCGA label)</label><input type="text" name="cancer_type" required><br>
+                <label class="input-info">Microsatellite Instability Status (MSI)</label><input type="text" name="msi" required><br>
+                <label class="input-info">Screen Medium</label><input type="text" name="screen_medium" required><br>
+                
+                <label class="input-info">Copy Number Alterations (CNA)</label>
+                <select class="input-info" name="cna" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="YES">YES</option>
+                    <option value="NO">NO</option>
+                </select><br>
+                                
+                <label class="input-info">Gene Expression</label>
+                <select class="input-info" name="gene_expression" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="YES">YES</option>
+                    <option value="NO">NO</option>
+                </select><br>
+                                
+                <label class="input-info">Methylation</label>
+                <select class="input-info" name="methylation" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="YES">YES</option>
+                    <option value="NO">NO</option>
+                </select><br>
+
+                <label class="input-info">Target</label><input type="text" name="target" required><br>
+                <label class="input-info">Targeting Pathway</label><input type="text" name="target_pathway" required><br>
+        
+                <button class="submit-button" type="submit">Calculate</button>
+            </form>
+        
+            {% if prediction %}
+                <h2 class="prediction-percentage">Drug Response Effectiveness: {{ prediction }}</h2>
+            {% endif %}
+        </div>
+    </div>
+    
 
 </body>
 </html>

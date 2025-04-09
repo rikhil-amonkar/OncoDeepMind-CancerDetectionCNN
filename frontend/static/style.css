@@ -1,103 +1,166 @@
 body {
-    background-color: #f4f4f4;
+    background-color: #121212;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.form-container {
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    padding: 26px 30px;
+    background-color: #333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabs {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tabs:hover {
+    color: #0e6aff;
+}
+
+.hero-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 150px;
-    margin-bottom: 200px;
     height: 100vh;
-    width: 100vh;
-    padding: 10px;
-    border-radius: 20px;
-    background-color: #ffffff;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #0e6aff;
+    text-align: center;
 }
 
-.form-container label {
-    font-size: 16px;
+.hero-content {
+    max-width: 80%;
+    margin-top: 50px;
+    text-align: left;
+    padding-left: 60px;
+    margin-top: -120px;
+    width: 50%;
+}
+
+.home-page-header {
+    font-size: 60px;
+    color: #fff;
     font-weight: bold;
-    margin-bottom: 8px; /* Space between label and input box */
+    margin-bottom: 15px;
+    line-height: 1.3;
 }
 
-.form-container input {
-    padding: 10px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
+.home-page-sub-text {
     font-size: 20px;
-    width: 100%;
-    box-sizing: border-box;
+    color: #f0f0f0;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.bottom-page {
+    background-color: #f6f6f6;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.header-container {
+    margin-bottom: 40px;
 }
 
 .header {
     font-size: 50px;
-    color: rgb(0, 0, 0);
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: bold;
+    color: #0e6aff;
 }
 
 .sub-header {
-    font-size: 25px;
+    font-size: 22px;
+    color: #333;
     font-weight: bold;
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 10px;
+    margin-top: -20px;
+}
+
+.form-container {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
     font-size: 40px;
-    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+    margin-bottom: 50px;
     font-weight: bold;
-    margin-bottom: 30px;
 }
 
 .input-info {
-    font-size: 20px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    margin-bottom: 8px;
     font-weight: bold;
+    color: #333;
+    display: block;
+    text-align: left;
 }
 
-input[type="text"] {
-    width: 250px;
-    height: 40px;
-    padding: 10px;
-    border: 2px solid #ccc;
+input[type="text"], select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 16px 0;
     border-radius: 8px;
-    font-size: 14px;
+    border: 2px solid #ddd;
+    font-size: 16px;
+    color: #333;
     background-color: #f9f9f9;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease;
 }
 
-.submit-button {
+input[type="text"]:focus, select:focus {
+    border-color: #0e6aff;
+}
+
+button.submit-button {
+    background-color: #0e6aff;
+    color: white;
+    padding: 15px 30px;
     font-size: 20px;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #000000;
-    color: white;
+    font-weight: bold;
     border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    align-items: center;
-    width: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 35%;
+    transition: background-color 0.3s ease;
 }
 
-.submit-button:hover {
-    background-color: rgb(113, 113, 113);
-    color: white;
-    border-radius: 10px;
-    padding: 10px 20px;
+button.submit-button:hover {
+    background-color: #1e8aff;
+}
+
+.prediction-percentage {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0e6aff;
+    margin-top: 30px;
+}
+
+datalist {
+    font-size: 16px;
+}
+
+datalist option {
+    padding: 10px;
+    cursor: pointer;
+}
+
+datalist option:hover {
+    background-color: #f0f0f0;
 }
