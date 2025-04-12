@@ -6,6 +6,10 @@ import torch
 import pandas as pd
 import joblib
 from backend.programs.drug_nueral_network import DrugResponseModel
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -103,6 +107,88 @@ async def predict(request: Request,
     # Return the prediction result to the HTML template
     return templates.TemplateResponse("predict.html", {"request": request, "prediction": f"{percent_effectiveness:.2f}%"})
         
-    
+# ************* CANCER RISK PREDICTION ROUTING *************
 
+# Load the cancer risk model
+def load_risk_model():
+    risk_model = joblib.load("backend/saved_models/cancer_risk_model.pkl")
+    risk_scaler = joblib.load("backend/saved_models/cancer_risk_scaler.pkl")
+
+    return {
+        'model': risk_model,
+        'scaler': risk_scaler
+    }
+
+risk_model = load_risk_model() # Load the cancer risk model
+
+# Define route for the cancer risk prediction form
+@app.get("/risk", response_class=HTMLResponse)
+async def show_cancer_risk_form(request: Request):
+    return templates.TemplateResponse("risk.html", {"request": request})
+
+# Define route for cancer risk prediction and form submission
+@app.post("/risk", response_class=HTMLResponse)
+async def predict_cancer_risk(request: Request,
+                              age: str = Form(...),
+                              gender: str = Form(...),
+                              height: str = Form(...),
+                              weight: str = Form(...),
+                              smoking: str = Form(...),
+                              genetic_risk: str = Form(...),
+                              physical_activity: str = Form(...),
+                              alcohol_intake: str = Form(...),
+                              cancer_history: str = Form(...)):
+
+    # Create a DataFrame from the user input
+    user_input = {
+        'Age': [age],
+        'Gender': [gender],
+        'Height (cm)': [height],
+        'Weight (kg)': [weight],
+        'Smoking': [smoking],
+        'GeneticRisk': [genetic_risk],
+        'PhysicalActivity': [physical_activity],
+        'AlcoholIntake': [alcohol_intake],
+        'CancerHistory': [cancer_history]
+    }
+
+    # Calculate BMI from height and weight
+    height_cm = float(user_input['Height (cm)'][0])
+    weight_kg = float(user_input['Weight (kg)'][0])
+    bmi = weight_kg / ((height_cm / 100) ** 2)
+
+    # Drop the height and weight columns
+    features = np.array([[user_input['Age'][0], user_input['Gender'][0], bmi, user_input['Smoking'][0], user_input['GeneticRisk'][0], user_input['PhysicalActivity'][0], user_input['AlcoholIntake'][0], user_input['CancerHistory'][0]]], dtype=float)
+
+    # Scale the user input
+    user_input_scaled = risk_model['scaler'].transform(features)
+
+    # Make prediction of the user input
+    prediction = risk_model['model'].predict(user_input_scaled)
+    prediction_proba = risk_model['model'].predict_proba(user_input_scaled)
+    print(f'Prediction: {'No Cancer' if prediction[0] == 0 else 'Cancer'}')
+    print(f'Prediction Probability: {prediction_proba[0]}')
+
+    # Calculate the probability of having cancer based on weighed prediction
+    probability = prediction_proba[0][1] * 100
+    print(f'Probability of having cancer: {probability:.2f}%')
+
+    # Generate recommendations based on user input
+    recommendations = []
+    if float(user_input['Smoking'][0]) > 0.5:
+        recommendations.append("Consider quitting smoking to significantly lower your cancer risk.")
+    if float(user_input['AlcoholIntake'][0]) > 0.5:
+        recommendations.append("Reducing alcohol intake can help reduce cancer risk.")
+    if float(user_input['PhysicalActivity'][0]) < 0.5:
+        recommendations.append("Increasing physical activity improves overall health and reduces cancer risk.")
+    if float(bmi) > 25:
+        recommendations.append("Maintaining a healthy BMI through diet and exercise can help.")
+    if float(user_input['GeneticRisk'][0]) > 0.5:
+        recommendations.append("Consider speaking to a genetic counselor for a detailed risk assessment.")
+    if not recommendations:
+        recommendations.append("Your current lifestyle choices are healthy! Keep it up.")
+
+    # Return the prediction result to the HTML template
+    return templates.TemplateResponse("risk.html", {"request": request, "prediction": f"{probability:.2f}%", "recommendations": recommendations})
+                              
 

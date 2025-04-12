@@ -9,14 +9,21 @@
 </head>
 <body>
 
-    <header>
-        <div class="navbar">
-            <a class="tabs" href="/">Home</a>
-            <a class="tabs" href="/predict">Form</a>
-            <a class="tabs" href="#contact">Contact</a>
-            <a class="tabs" href="/about">About</a>
-          </div>
-    </header>
+    <div class="navbar">
+        <header class="navbar-content">
+            <a href="/" class="logo">
+                <span class="logo-text">OncoDeepMind</span>
+            </a>
+            <nav class="nav">
+                <div class="nav-list">
+                    <p class="nav-item"><a href="/risk">Risk</a></p>
+                    <p class="nav-item"><a href="/predict">Form</a></p>
+                    <p class="nav-item"><a href="#testimonials">Testimonials</a></p>
+                    <p class="nav-item"><a href="/about">About</a></p>
+                </div>
+            </nav>
+        </header>
+    </div>
 
     <div class="bottom-page">
         <div class="header-container">
@@ -69,14 +76,15 @@
                 <button class="submit-button" type="submit">Submit</button>
             </form>
 
-            {% if prediction %}
-            <div class="display-percentage" id="display-percentage-container">
-                <h2 class="drug-response-header">Drug Response Effectiveness</h2> 
-                <h2 class="prediction-percentage">{{ prediction }}</h2>
-            </div>
-            {% endif %}
-
         </div>
+
+    {% if prediction %}
+    <div class="display-percentage" id="display-percentage-container">
+        <h2 class="drug-response-header">Drug Response Effectiveness</h2> 
+        <h2 class="prediction-percentage">{{ prediction }}</h2>
+    </div>
+    {% endif %}
+
     </div>
     
 </body>
