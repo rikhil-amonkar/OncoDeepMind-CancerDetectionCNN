@@ -25,40 +25,47 @@
         </header>
     </div>
 
+    <h2 class="risk-page-header">Cancer Risk & Information</h2>
+    <p class="risk-page-sub-text">Learn about your possible risk of cancer and what you can change!</p>
+
     <div class="container-wrapper">
 
         <div class="cancer-risk-container">
-            <form method="post" action="/risk" class="cancer-risk-form">
+            <form method="post" action="/risk" class="cancer-risk-form" id="cancer-risk-form">
                 <h2 class="risk-form-header">Cancer Risk Assessment</h2>
                 <label class="input-info-risk" for="age">Age</label>
-                <input type="number" id="age" name="age" min="18" max="99" required>
+                <input type="number" id="age" name="age" min="18" max="99" placeholder="ex. 18" required>
             
                 <label class="input-info-risk" for="gender">Gender</label>
                 <select id="gender" name="gender" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="1">Male</option>
                     <option value="0">Female</option>
                 </select>
             
                 <label class="input-info-risk" for="height">Height (cm)</label>
-                <input type="number" id="height" name="height" min="50" max="250" required>
+                <input type="number" id="height" name="height" min="50" max="250" placeholder="ex. 150 cm" required>
             
                 <label class="input-info-risk" for="weight">Weight (kg)</label>
-                <input type="number" id="weight" name="weight" min="20" max="300" required>
+                <input type="number" id="weight" name="weight" min="20" max="300" placeholder="60 kg" required>
             
                 <label class="input-info-risk" for="smoking">Smoking</label>
                 <select id="smoking" name="smoking" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="1">Yes</option>
                     <option value="0">No</option>
                 </select>
             
                 <label class="input-info-risk" for="genetic_risk">Genetic Risk</label>
                 <select id="genetic_risk" name="genetic_risk" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="1">High</option>
                     <option value="0">Low</option>
                 </select>
             
                 <label class="input-info-risk" for="physical_activity">Physical Activity</label>
                 <select id="physical_activity" name="physical_activity" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="0.5">Sedentary – little to no exercise</option>
                     <option value="2.3">Light – occasional light activity</option>
                     <option value="4.5">Moderate – exercise 3–4 days/week</option>
@@ -68,6 +75,7 @@
             
                 <label class="input-info-risk" for="alcohol_intake">Alcohol Intake</label>
                 <select id="alcohol_intake" name="alcohol_intake" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="0">None</option>
                     <option value="1">1-2 drinks a week</option>
                     <option value="2">2-4 drinks a week</option>
@@ -77,6 +85,7 @@
             
                 <label class="input-info-risk" for="cancer_history">Cancer History</label>
                 <select id="cancer_history" name="cancer_history" required>
+                    <option value="" disabled selected>Select</option>
                     <option value="1">Yes</option>
                     <option value="0">No</option>
                 </select>
@@ -97,12 +106,14 @@
 
             <h2 class="recommendation-header">Lifestyle Change Recommendations</h2>
 
+            <p id="empty-rec-text">Fill out the form and view your health recommendations!</p>
+
             {% if recommendations %}
             <div class="recommendation-section">
-                <h2>💡 Personalized Lifestyle Change Recommendations</h2>
-                <ul>
+                <h2>** Try some of these lifestyle changes to better your health! **</h2>
+                <ul class="recommendation-list">
                     {% for rec in recommendations %}
-                        <li>{{ rec }}</li>
+                        <li class="item-rec">{{ rec }}</li>
                     {% endfor %}
                 </ul>
             </div>
