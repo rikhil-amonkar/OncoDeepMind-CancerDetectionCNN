@@ -132,7 +132,8 @@ body {
     background-color: #ffffff;
     border-radius: 12px;
     padding: 30px;
-    margin-bottom: 300px;
+    margin-bottom: 500px;
+    margin-top: 100px;
     width: 60%;
     max-width: 800px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -140,7 +141,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    margin: auto;
 }
 
 .form-header {
@@ -259,17 +260,25 @@ button.submit-risk-button:hover {
     margin: 50 auto;
 }
 
-.display-percentage {
+#display-percentage-container {
+    position: absolute;
     display: block;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-color: #eaeaea;
+    background-color: #d7d7d7;
+    border: #000000;
+    margin-top: 200px;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    margin: 0 auto;
+    width: 600px;
+    margin: 100 auto;
+    margin-left: 460px;
+    z-index: 10;
+    box-sizing: border-box;
+    top: 0;
+    left: 0;
 }
 
 datalist {
@@ -602,4 +611,27 @@ datalist option:hover {
     align-items: center;
     text-align: center;
     margin-bottom: -10px;
+}
+
+.back-button {
+    background-color: #ffffff;
+    color: #2d56b7;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bolder;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: -30px;
+    margin-bottom: 30px;
+    width: 25%;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    justify-self: left;
+    text-align: center;
+}
+
+.back-button:hover {
+    color: #ffffff;
+    background-color: #1e56b0;
 }

@@ -73,17 +73,18 @@
                 <label class="input-info">Target</label><input type="text" name="target" required><br>
                 <label class="input-info">Targeting Pathway</label><input type="text" name="target_pathway" required><br>
         
-                <button class="submit-button" type="submit">Submit</button>
+                <button id="drug-form-submit" class="submit-button" type="submit">Submit</button>
             </form>
 
         </div>
 
-    {% if prediction %}
-    <div class="display-percentage" id="display-percentage-container">
-        <h2 class="drug-response-header">Drug Response Effectiveness</h2> 
-        <h2 class="prediction-percentage">{{ prediction }}</h2>
-    </div>
-    {% endif %}
+        {% if prediction %}
+        <div class="display-percentage" id="display-percentage-container">
+            <h2 class="drug-response-header">Drug Response Effectiveness</h2> 
+            <h2 class="prediction-percentage">{{ prediction }}</h2>
+            <button class="back-button" id="back-button" onclick="window.location.href='/predict'">Back</button>
+        </div>
+        {% endif %}
 
     </div>
     
