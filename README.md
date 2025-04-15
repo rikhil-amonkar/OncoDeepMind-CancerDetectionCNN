@@ -1,5 +1,5 @@
 # OncoDeepMind
-OncoDeepMind is a deep learning-based framework for predicting cancer drug responses using biological and molecular data. The goal is to support precision oncology through AI-powered analysis of complex datasets such as gene expression profiles and SMILES representations of drug compounds.
+OncoDeepMind is a deep learning-based and AI-orientated web-application to help predict cancer drug responses using biological and molecular data. The goal is to support precision oncology through ML-powered analysis of complex datasets such as gene expression profiles and SMILES representations of drug compounds. OncoDeepMind also offers a risk predicition Logistic Regression model to provide users with probabilitiy of risk as well as LLM generated recommendations for lifestyle changes.
 
 ## 🚀 Features
 - Deep neural networks with multi-layer architectures
