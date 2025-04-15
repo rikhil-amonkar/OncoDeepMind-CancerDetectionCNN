@@ -75,9 +75,10 @@ GDSC (Genomics of Drug Sensitivity in Cancer)
 CCLE (Cancer Cell Line Encyclopedia)
 
 # 📈 Results
-Model	| Dataset	| MAE	| R² Score
-DNN (5-layer)	| GDSC	| 0.09	| 0.83
-GraphNet | GDSC |	0.07 | 0.87
+| Model | Dataset | R² Score |
+|----------|----------|----------|
+| Deep Neural Network    | Data     | 0.66     |
+| Logistic Regression    | The_Cancer_data_1500.csv     | 0.89     |
 
 # 🛠️ TODO
 1. Integrate GPT-2 HuggingFace Transformer for result explination
