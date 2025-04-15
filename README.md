@@ -9,7 +9,40 @@ OncoDeepMind is a deep learning-based framework for predicting cancer drug respo
 - FastAPI backend and Next.js frontend (if applicable)
 
 ## 📁 Project Structure
-Pathway...
+
+/CancerDetectionCNN
+    |--- /backend
+      |--- /data
+        |--- Cell_Lines_Details.xlsx
+        |--- Compounds-annotation.csv
+        |--- GDSC_DATASET.csv
+        |--- GDSC2-dataset.csv
+        |--- The_Cancer_data_1500.csv
+      |--- /programs
+        |--- drug_neural_network.py
+        |--- main.py
+        |--- model.py
+        |--- risk_model.py
+      |--- /saved_models
+        |--- cancer_risk_model.pkl
+        |--- cancer_risk_scaler.pkl
+        |--- categorical_cols.pkl
+        |--- columns.pkl
+        |--- DrugResponseModel.pth
+        |--- x_scaler.pkl
+        |--- y_scaler.pkl
+    |--- /frontend
+      |--- /static
+        |--- script.js
+        |--- style.css
+      |--- /templates
+        |--- about.html
+        |--- index.html
+        |--- predict.html
+        |--- risk.html
+    .gitignore
+    LICENSE
+    README.md
 
 ## 📦 Installation
 
