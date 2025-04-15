@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OncoDeepMind
+OncoDeepMind is a deep learning-based framework for predicting cancer drug responses using biological and molecular data. The goal is to support precision oncology through AI-powered analysis of complex datasets such as gene expression profiles and SMILES representations of drug compounds.
 
-## Getting Started
+## 🚀 Features
+- Deep neural networks with multi-layer architectures
+- Integration of molecular and cellular biological data
+- Predictive modeling of drug efficacy (e.g., AUC values)
+- Customizable preprocessing and encoding pipelines
+- FastAPI backend and Next.js frontend (if applicable)
 
-First, run the development server:
+## 📁 Project Structure
+Pathway...
+
+## 📦 Installation
+
+Clone the repository and install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/CancerDetectionCNN.git
+cd CancerDetectionCNN
+pip install -r requirements.txt
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# 🧠 Usage
+- Training a Model
+python oncodeepmind/training/train_model.py --config configs/default.yaml
+- Predicting Drug Response
+python oncodeepmind/prediction/predict_auc.py --input data/test_samples.csv
+- Run API (FastAPI backend)
+uvicorn app.main.backend:app --reload
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# 🔬 Technologies
+Python, PyTorch, HTML, CSS, JavaScript
+FastAPI, Joblib
+Scikit-learn, Pandas, Numpy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 📊 Datasets
+GDSC (Genomics of Drug Sensitivity in Cancer)
+CCLE (Cancer Cell Line Encyclopedia)
 
-## Learn More
+# 📈 Results
+Model	| Dataset	| MAE	| R² Score
+DNN (5-layer)	| GDSC	| 0.09	| 0.83
+GraphNet | GDSC |	0.07 | 0.87
 
-To learn more about Next.js, take a look at the following resources:
+# 🛠️ TODO
+1. Integrate GPT-2 HuggingFace Transformer for result explination
+2. Publish webpage and deploy using Vercel (frontend) and Render (backend)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 🤝 Contributing
+Contributions are welcome! Please open an issue or submit a pull request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 📄 License
+This project is licensed under the MIT License. See the LICENSE file for details.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
