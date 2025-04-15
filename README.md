@@ -58,12 +58,13 @@ pip install -r requirements.txt
 ```
 
 # 🧠 Usage
-- Training a Model
-python oncodeepmind/training/train_model.py --config configs/default.yaml
-- Predicting Drug Response
-python oncodeepmind/prediction/predict_auc.py --input data/test_samples.csv
+- Training + Testing Drug Response Deep Neural Network Model
+python CancerDetectionCNN/backend/programs/drug_nueral_network.py
+python CancerDetectionCNN/backend/programs/model.py
+- Training Cancer Risk Logistic Regression Model
+python CancerDetectionCNN/backend/programs/risk_model.py
 - Run API (FastAPI backend)
-uvicorn app.main.backend:app --reload
+uvicorn backend.programs.main:app --reload
 
 # 🔬 Technologies
 Python, PyTorch, HTML, CSS, JavaScript
