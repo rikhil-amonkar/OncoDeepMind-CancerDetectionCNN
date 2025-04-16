@@ -97,7 +97,7 @@
 
             <div class="risk-display">
                 {% if prediction %}
-                <div class="display-percentage" id="display-percentage-container">
+                <div class="display-risk-percentage" id="display-risk-percentage-container">
                     <h2 class="drug-response-header">Cancer Probability</h2> 
                     <h2 class="prediction-percentage">{{ prediction }}</h2>
                 </div>
@@ -114,6 +114,12 @@
                 <ul class="recommendation-list">
                     {% for rec in recommendations %}
                         <li class="item-rec">{{ rec }}</li>
+                    {% endfor %}
+                </ul>
+                <h2>How Much Each Feature Contributed To Your Risk</h2>
+                <ul class="recommendation-list">
+                    {% for contribution in contributions %}
+                        <li class="item-rec">{{ contribution.feature }} contributed {{ contribution.percent }}% to your risk</li>
                     {% endfor %}
                 </ul>
             </div>

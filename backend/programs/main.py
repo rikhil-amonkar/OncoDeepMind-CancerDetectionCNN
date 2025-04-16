@@ -10,6 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
+import json
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -114,9 +115,14 @@ def load_risk_model():
     risk_model = joblib.load("backend/saved_models/cancer_risk_model.pkl")
     risk_scaler = joblib.load("backend/saved_models/cancer_risk_scaler.pkl")
 
+    # Import all model weights
+    with open("backend/saved_models/model_weights.json", "r") as f:
+        model_weights = json.load(f) # Load the model weights from JSON file
+
     return {
         'model': risk_model,
-        'scaler': risk_scaler
+        'scaler': risk_scaler,
+        'weights': model_weights
     }
 
 risk_model = load_risk_model() # Load the cancer risk model
@@ -169,6 +175,47 @@ async def predict_cancer_risk(request: Request,
     print(f'Prediction: {'No Cancer' if prediction[0] == 0 else 'Cancer'}')
     print(f'Prediction Probability: {prediction_proba[0]}')
 
+    # Feature contribution weights
+    weights = risk_model['model'].coef_[0] # This is an array of the weights per feature
+    intercept = risk_model['model'].intercept_[0] # The bias term
+    features_names = ['Age', 'Gender', 'BMI', 'Smoking', 'GeneticRisk', 'PhysicalActivity', 'AlcoholIntake', 'CancerHistory'] # Feature names
+    contributions = [] 
+    linear_sum = intercept
+
+    for i, name in enumerate(features_names):
+        value = float(features[0][i]) # Get the value of the feature
+        weight = float(weights[i]) # Get the weight of the feature
+        contribution = value * weight # Calculate the contribution of the feature
+        linear_sum += contribution
+        contributions.append({
+            "feature": name,
+            "value": round(value, 2),
+            "weight": round(weight, 3),
+            "contribution": round(contribution, 3)
+        })
+
+    # Calculate percent change contribution to risk based on weights
+    total_weight = sum(abs(cont['contribution']) for cont in contributions)
+    all_percentages = []
+    for cont in contributions:
+        percentage = (abs(cont['contribution']) / total_weight) * 100 # Calculate the percentage contribution
+        all_percentages.append(percentage)
+        print(f"Contribution: {cont['contribution']:.3f}, Percent: {percentage:.2f}%")
+
+    print("Total weight:", total_weight)
+    print("All percentages:", all_percentages)
+
+    # Create a new list of contributions with percentage
+    contributions_with_percent = []
+    for cont, percentage in zip(contributions, all_percentages):
+        contributions_with_percent.append({
+            "feature": cont["feature"],
+            "value": cont["value"],
+            "weight": cont["weight"],
+            "contribution": cont["contribution"],
+            "percent": round(percentage, 2)
+        })
+    
     # Calculate the probability of having cancer based on weighed prediction
     probability = prediction_proba[0][1] * 100
     print(f'Probability of having cancer: {probability:.2f}%')
@@ -189,6 +236,6 @@ async def predict_cancer_risk(request: Request,
         recommendations.append("Your current lifestyle choices are healthy! Keep it up.")
 
     # Return the prediction result to the HTML template
-    return templates.TemplateResponse("risk.html", {"request": request, "prediction": f"{probability:.2f}%", "recommendations": recommendations})
+    return templates.TemplateResponse("risk.html", {"request": request, "prediction": f"{probability:.2f}%", "recommendations": recommendations, "contributions": contributions_with_percent})
                               
 

@@ -1,0 +1,9 @@
+fastapi
+jinja2
+uvicorn
+pandas
+numpy
+scikit-learn
+joblib
+torch
+transformers

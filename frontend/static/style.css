@@ -129,6 +129,7 @@ body {
 }
 
 .form-container {
+    position: relative;
     background-color: #ffffff;
     border-radius: 12px;
     padding: 30px;
@@ -261,7 +262,22 @@ button.submit-risk-button:hover {
 }
 
 #display-percentage-container {
-    position: absolute;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #d7d7d7;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    margin: 100px auto;
+    z-index: 10;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.display-risk-percentage {
     display: block;
     justify-content: center;
     align-items: center;
@@ -271,14 +287,8 @@ button.submit-risk-button:hover {
     margin-top: 200px;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    width: 600px;
-    margin: 100 auto;
-    margin-left: 460px;
-    z-index: 10;
-    box-sizing: border-box;
-    top: 0;
-    left: 0;
+    width: 300px;
+    margin: 0 auto;
 }
 
 datalist {
@@ -588,6 +598,15 @@ datalist option:hover {
     align-items: center;
     text-align: center;
     width: 350px;
+    transition: opacity 0.3s ease;
+}
+
+#empty-rec-text.hidden {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
 }
 
 .risk-page-header {

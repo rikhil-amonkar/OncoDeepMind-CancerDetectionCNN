@@ -34,6 +34,14 @@ X_test_scaled = scaler.transform(X_test)
 model = LogisticRegression()
 model.fit(X_train_scaled, y_train)
 
+# Calculate the weights of the features
+weights = model.coef_[0] # This is an array of the weights per feature
+intercept = model.intercept_[0] # The bias term
+feature_names = X_train.columns
+coeff_dict = dict(zip(feature_names, weights))
+print("Intercept (bias):", intercept)
+print("Feature weights:", coeff_dict)
+
 # Make predictions on the test set
 y_pred = model.predict(X_test_scaled)
 
