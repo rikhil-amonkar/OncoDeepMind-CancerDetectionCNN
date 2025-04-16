@@ -52,7 +52,7 @@ OncoDeepMind is a deep learning-based and AI-orientated web-application to help 
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/yourusername/CancerDetectionCNN.git
+git clone https://github.com/yourusername/OncoDeepMind-CancerDetectionCNN.git
 cd CancerDetectionCNN
 pip install -r requirements.txt
 ```
