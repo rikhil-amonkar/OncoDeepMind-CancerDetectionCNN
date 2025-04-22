@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const drugForm = document.getElementById("drug-response-form");
     if (drugForm) {
         drugForm.addEventListener("submit", function(event) {
-        event.preventDefault();
         document.getElementById("display-percentage-container").style.display = "flex";
         });
     }

@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 import json
+from backend.programs.gpt2_model import generate_recommendations
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -222,15 +223,15 @@ async def predict_cancer_risk(request: Request,
 
     # Generate recommendations based on user input
     recommendations = []
-    if float(user_input['Smoking'][0]) > 0.5:
+    if float(user_input['Smoking'][0]) > 0:
         recommendations.append("Consider quitting smoking to significantly lower your cancer risk.")
-    if float(user_input['AlcoholIntake'][0]) > 0.5:
+    if float(user_input['AlcoholIntake'][0]) > 1:
         recommendations.append("Reducing alcohol intake can help reduce cancer risk.")
-    if float(user_input['PhysicalActivity'][0]) < 0.5:
+    if float(user_input['PhysicalActivity'][0]) < 3:
         recommendations.append("Increasing physical activity improves overall health and reduces cancer risk.")
     if float(bmi) > 25:
         recommendations.append("Maintaining a healthy BMI through diet and exercise can help.")
-    if float(user_input['GeneticRisk'][0]) > 0.5:
+    if float(user_input['GeneticRisk'][0]) > 0:
         recommendations.append("Consider speaking to a genetic counselor for a detailed risk assessment.")
     if not recommendations:
         recommendations.append("Your current lifestyle choices are healthy! Keep it up.")
