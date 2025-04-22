@@ -6,7 +6,8 @@ OncoDeepMind is a deep learning-based and AI-orientated web-application to help 
 - Integration of molecular and cellular biological data
 - Predictive modeling of drug efficacy (e.g., AUC values)
 - Customizable preprocessing and encoding pipelines
-- FastAPI backend and Next.js frontend (if applicable)
+- Feature weight system and custom lifestyle change recommendations
+- FastAPI backend routing
 
 ## 📁 Project Structure
 
