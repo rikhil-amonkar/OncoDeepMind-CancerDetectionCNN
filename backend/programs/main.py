@@ -173,8 +173,8 @@ async def predict_cancer_risk(request: Request,
     # Make prediction of the user input
     prediction = risk_model['model'].predict(user_input_scaled)
     prediction_proba = risk_model['model'].predict_proba(user_input_scaled)
-    print(f'Prediction: {'No Cancer' if prediction[0] == 0 else 'Cancer'}')
-    print(f'Prediction Probability: {prediction_proba[0]}')
+    print(f"Prediction: {'No Cancer' if prediction[0] == 0 else 'Cancer'}")
+    print(f"Prediction Probability: {prediction_proba[0]}")
 
     # Feature contribution weights
     weights = risk_model['model'].coef_[0] # This is an array of the weights per feature
