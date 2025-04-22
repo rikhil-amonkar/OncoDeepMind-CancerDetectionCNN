@@ -1,5 +1,5 @@
 # OncoDeepMind
-OncoDeepMind is a deep learning-based and AI-orientated web-application to help predict cancer drug responses using biological and molecular data. The goal is to support precision oncology through ML-powered analysis of complex datasets such as gene expression profiles and SMILES representations of drug compounds. OncoDeepMind also offers a risk predicition Logistic Regression model to provide users with probabilitiy of risk as well as LLM generated recommendations for lifestyle changes.
+OncoDeepMind is a deep learning-based and AI-orientated web-application to help predict cancer drug responses using biological and molecular data. The goal is to support precision oncology through ML-powered analysis of complex datasets such as gene expression profiles and cell line pathways for prediciting the effectiveness of a drug's response certain cancers. OncoDeepMind also offers a risk predicition Logistic Regression model to provide users with probabilitiy of risk as well as generated recommendations for lifestyle changes to provide feedback to the user to lower risk and improve health.
 
 ## 🚀 Features
 - Deep neural networks with multi-layer architectures
@@ -25,15 +25,14 @@ OncoDeepMind is a deep learning-based and AI-orientated web-application to help 
 │   │   ├── main.py
 │   │   ├── model.py
 │   │   └── risk_model.py
-│   ├── /saved_models
-│   │   ├── cancer_risk_model.pkl
-│   │   ├── cancer_risk_scaler.pkl
-│   │   ├── categorical_cols.pkl
-│   │   ├── columns.pkl
-│   │   ├── DrugResponseModel.pth
-│   │   ├── x_scaler.pkl
-│   │   └── y_scaler.pkl
-│   └── requirements.txt
+│   └── /saved_models
+│       ├── cancer_risk_model.pkl
+│       ├── cancer_risk_scaler.pkl
+│       ├── categorical_cols.pkl
+│       ├── columns.pkl
+│       ├── DrugResponseModel.pth
+│       ├── x_scaler.pkl
+│       └── y_scaler.pkl
 ├── /frontend
 │   ├── /static
 │   │   ├── script.js
@@ -45,7 +44,8 @@ OncoDeepMind is a deep learning-based and AI-orientated web-application to help 
 │       └── risk.html
 ├── .gitignore
 ├── LICENSE
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ## 📦 Installation
@@ -68,8 +68,8 @@ python CancerDetectionCNN/backend/programs/risk_model.py
 uvicorn backend.programs.main:app --reload
 
 # 🔬 Technologies
-Python, PyTorch, HTML, CSS, JavaScript
-FastAPI, Joblib
+Python, HTML, CSS, JavaScript
+PyTorch, FastAPI, Joblib
 Scikit-learn, Pandas, Numpy
 
 # 📊 Datasets
@@ -83,13 +83,14 @@ CCLE (Cancer Cell Line Encyclopedia)
 | Logistic Regression    | The_Cancer_data_1500.csv     | 0.89     |
 
 # 🛠️ TODO
-1. Integrate GPT-2 HuggingFace Transformer for result explination
+1. Possible integration GPT-2 HuggingFace Transformer or Wrapper for future features
 2. Publish webpage and deploy using Vercel (frontend) and Render (backend)
+
+# ⚠️ Disclaimer
+This is a personal project, and the predictions and suggestions provided by OncoDeepMind are based on machine learning models trained on historical data. These outputs are for informational purposes only and should not be considered as medical advice. Always consult with a licensed healthcare professional or oncologist before making any decisions related to cancer treatment or drug selection.
 
 # 🤝 Contributing
 Contributions are welcome! Please open an issue or submit a pull request.
 
 # 📄 License
 This project is licensed under the MIT License. See the LICENSE file for details.
-
-
