@@ -35,6 +35,8 @@ OncoDeepMind is a deep learning-based and AI-orientated web-application to help 
 │       └── y_scaler.pkl
 ├── /frontend
 │   ├── /static
+|   |   ├── /images
+|   |   |   └── onco-logo-cropped.png
 │   │   ├── script.js
 │   │   └── style.css
 │   └── /templates
